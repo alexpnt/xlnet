@@ -73,9 +73,10 @@ def encode_sentences(sentences, xlnet_config, xlnet_run_config, tokenize_fn, max
 
 
 if __name__ == "__main__":
-    model_base_path = 'xlnet_cased_L-12_H-768_A-12/'
+    model_base_path = '/home/arpinto/WIT/data/models/xlnet/xlnet_cased_L-12_H-768_A-12/'
     model_config_path = model_base_path + 'xlnet_config.json'
     model_ckpt_path = model_base_path + 'xlnet_model.ckpt'
+    model_finetune_dir = model_base_path + 'finetuned/'
     spiece_model_path = model_base_path + 'spiece.model'
     max_seq_length = 512
 
