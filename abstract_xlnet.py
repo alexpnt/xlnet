@@ -1,4 +1,5 @@
 import uuid
+from functools import partial
 
 import sentencepiece as spm
 import tensorflow as tf
@@ -7,7 +8,6 @@ import xlnet
 from classifier_utils import convert_single_example
 from prepro_utils import preprocess_text, encode_ids
 from run_classifier import InputExample
-from functools import partial
 
 # enable eager execution
 tf.enable_eager_execution()
@@ -21,9 +21,11 @@ def build_xlnet_config(model_config_path, spiece_model_path):
 
     # XLNetConfig contains hyperparameters that are specific to a model checkpoint.
     xlnet_config = xlnet.XLNetConfig(json_path=model_config_path)
+    xlnet_config.dropout = 0.0
+    xlnet_config.dropatt = 0.0
 
     # RunConfig contains hyperparameters that could be different between pretraining and finetuning.
-    xlnet_run_config = xlnet.RunConfig(is_training=False, use_tpu=False, use_bfloat16=False, dropout=0.1, dropatt=0.1,
+    xlnet_run_config = xlnet.RunConfig(is_training=False, use_tpu=False, use_bfloat16=False, dropout=0.0, dropatt=0.0,
                                        init="normal", init_range=0.1, init_std=0.02, mem_len=None,
                                        reuse_len=None, bi_data=False, clamp_len=-1, same_length=False)
 
@@ -53,7 +55,7 @@ def encode_sentences(sentences, xlnet_config, xlnet_run_config, tokenize_fn, max
         input_features_batch["segment_ids"] += [input_features.segment_ids]
         input_features_batch["input_mask"] += [input_features.input_mask]
 
-    # # Construct an XLNet model
+    # Construct an XLNet model
     xlnet_model = xlnet.XLNetModel(
         xlnet_config=xlnet_config,
         run_config=xlnet_run_config,
@@ -63,21 +65,23 @@ def encode_sentences(sentences, xlnet_config, xlnet_run_config, tokenize_fn, max
     )
 
     # Get a summary of the sequence using the last hidden state
-    pooled_output = xlnet_model.get_pooled_out(summary_type="last", use_summ_proj=True)
+    pooled_output = xlnet_model.get_pooled_out(summary_type="last", use_summ_proj=False)
     pooled_output_np = pooled_output.numpy()
-    # print(pooled_output_np)
-    # print(pooled_output_np.shape)
+    print(pooled_output_np)
+    print(pooled_output_np.shape)
     return pooled_output_np
 
 
 if __name__ == "__main__":
-    model_config_path = '/xlnet_config.json'
-    spiece_model_path = '/xlnet_cased_L-12_H-768_A-12/spiece.model'
-    max_seq_lenght = 512
+    model_base_path = 'xlnet_cased_L-12_H-768_A-12/'
+    model_config_path = model_base_path + 'xlnet_config.json'
+    model_ckpt_path = model_base_path + 'xlnet_model.ckpt'
+    spiece_model_path = model_base_path + 'spiece.model'
+    max_seq_length = 512
 
     config = build_xlnet_config(model_config_path, spiece_model_path)
-    encode_sentences(['This is a test', 'And this is another test'],
+    encode_sentences(['this is a test', 'And this is another test'],
                      config['model_config'],
                      config['run_config'],
                      config['tokenizer'],
-                     max_seq_lenght)
+                     max_seq_length)
