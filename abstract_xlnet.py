@@ -72,7 +72,7 @@ def encode_sentences(sentences, xlnet_config, xlnet_run_config, tokenize_fn, max
 
 if __name__ == "__main__":
     model_config_path = '/xlnet_config.json'
-    spiece_model_path = '//xlnet_cased_L-12_H-768_A-12/spiece.model'
+    spiece_model_path = '/xlnet_cased_L-12_H-768_A-12/spiece.model'
     max_seq_lenght = 512
 
     config = build_xlnet_config(model_config_path, spiece_model_path)
