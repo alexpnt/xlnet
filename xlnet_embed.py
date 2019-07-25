@@ -158,11 +158,11 @@ def model_fn_builder(model_config_path, model_ckpt_path):
     return model_fn
 
 
-def encode_sentences(sentences, tokenize_fn, max_seq_length, model_config_path, model_ckpt_path, model_finetune_dir):
+def encode_sentences(sentences, tokenize_fn, max_seq_length, model_config_path, model_ckpt_path, model_finetuned_dir):
     input_examples = [InputExample(guid=uuid.uuid4(), text_a=sent, text_b=None, label=None) for sent in sentences]
     batch_size = len(input_examples)
 
-    run_config = configure_tpu(model_finetune_dir)
+    run_config = configure_tpu(model_finetuned_dir)
     model_fn = model_fn_builder(model_config_path, model_ckpt_path)
 
     estimator = tf.estimator.Estimator(
@@ -187,10 +187,10 @@ if __name__ == "__main__":
     model_config_path = model_base_path + 'xlnet_config.json'
     model_ckpt_path = model_base_path + 'xlnet_model.ckpt'
     spiece_model_path = model_base_path + 'spiece.model'
-    model_finetune_dir = model_base_path + 'finetuned/'
+    model_finetuned_dir = model_base_path + 'finetuned/'
 
     max_seq_length = 512
 
     tokenize_fn = tokenize_fn_builder(spiece_model_path)
     encode_sentences(['this is a test', 'And this is another test', 'Yet another random tests'], tokenize_fn,
-                     max_seq_length, model_config_path, model_ckpt_path, model_finetune_dir)
+                     max_seq_length, model_config_path, model_ckpt_path, model_finetuned_dir)
