@@ -10,7 +10,7 @@ from prepro_utils import preprocess_text, encode_ids
 from run_classifier import InputExample
 
 # enable eager execution
-tf.enable_eager_execution()
+# tf.enable_eager_execution()
 
 
 def build_xlnet_config(model_config_path, spiece_model_path):
@@ -66,14 +66,13 @@ def encode_sentences(sentences, xlnet_config, xlnet_run_config, tokenize_fn, max
 
     # Get a summary of the sequence using the last hidden state
     pooled_output = xlnet_model.get_pooled_out(summary_type="last", use_summ_proj=False)
-    pooled_output_np = pooled_output.numpy()
-    print(pooled_output_np)
-    print(pooled_output_np.shape)
-    return pooled_output_np
+    print(pooled_output)
+    print(pooled_output.shape)
+    return pooled_output
 
 
 if __name__ == "__main__":
-    model_base_path = '/home/arpinto/WIT/data/models/xlnet/xlnet_cased_L-12_H-768_A-12/'
+    model_base_path = 'data/models/xlnet/xlnet_cased_L-12_H-768_A-12/'
     model_config_path = model_base_path + 'xlnet_config.json'
     model_ckpt_path = model_base_path + 'xlnet_model.ckpt'
     model_finetune_dir = model_base_path + 'finetuned/'

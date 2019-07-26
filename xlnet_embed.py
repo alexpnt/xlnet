@@ -131,7 +131,7 @@ def model_fn_builder(model_config_path, model_ckpt_path):
             run_config=xlnet_run_config,
             input_ids=features['input_ids'],
             seg_ids=features['seg_ids'],
-            input_mask=features['input_mask']
+            input_mask=None
         )
 
         #### Check model parameters
@@ -142,7 +142,7 @@ def model_fn_builder(model_config_path, model_ckpt_path):
         init_from_checkpoint(model_ckpt_path)
 
         # Get a summary of the sequence using the last hidden state
-        summary = xlnet_model.get_pooled_out(summary_type="last", use_summ_proj=True)
+        summary = xlnet_model.get_pooled_out(summary_type="last", use_summ_proj=False)
 
         # Get a sequence output
         # seq_out = xlnet_model.get_sequence_output()
@@ -178,19 +178,20 @@ def encode_sentences(sentences, tokenize_fn, max_seq_length, model_config_path, 
 
     encoder = estimator.predict(input_fn=input_fn, yield_single_examples=False, checkpoint_path=None)
     results = list(itertools.islice(encoder, 1))[0]
-    # print(results['summary'])
     return results['summary']
 
 
 if __name__ == "__main__":
-    model_base_path = '/xlnet_cased_L-12_H-768_A-12/'
-    model_config_path = model_base_path + 'xlnet_config.json'
-    model_ckpt_path = model_base_path + 'xlnet_model.ckpt'
-    spiece_model_path = model_base_path + 'spiece.model'
-    model_finetuned_dir = model_base_path + 'finetuned/'
+    xlnet_base_path = 'data/models/xlnet/'
+    xlnet_model_path = xlnet_base_path + 'base/en/xlnet_cased_L-12_H-768_A-12/'
+    xlnet_config_path = xlnet_model_path + 'xlnet_config.json'
+    xlnet_ckpt_path = xlnet_base_path + 'base-fine-tuned/en/model.ckpt-1200'
+    spiece_model_path = xlnet_model_path + 'spiece.model'
+    model_finetuned_dir = xlnet_model_path + 'finetuned/'
 
     max_seq_length = 512
 
     tokenize_fn = tokenize_fn_builder(spiece_model_path)
-    encode_sentences(['this is a test', 'And this is another test', 'Yet another random tests'], tokenize_fn,
-                     max_seq_length, model_config_path, model_ckpt_path, model_finetuned_dir)
+    embeddings = encode_sentences(['this is a test', 'And this is another test', 'Yet another random tests'], tokenize_fn,
+                     max_seq_length, xlnet_config_path, xlnet_ckpt_path, model_finetuned_dir)
+    print(embeddings)
